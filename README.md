@@ -12,14 +12,23 @@ A modern, lightweight networking library for Swift built entirely on `async/awai
 ## Features
 
 - **Async/Await Native** — No completion handlers, no Combine wrappers. Pure structured concurrency.
-- **Interceptor Chain** — Auth, logging, retry, or build your own. Intercept requests and responses at every stage.
+- **Interceptor Chain** — Auth, logging, retry, caching, compression, metrics. Build your own too.
 - **Automatic Token Refresh** — `AuthInterceptor` handles expired tokens and replays failed requests seamlessly.
 - **Exponential Backoff Retry** — Configurable retry with jitter for transient failures.
 - **Certificate Pinning** — Pin SSL certificates or public keys for enhanced transport security.
-- **WebSocket Client** — Full async/await WebSocket with automatic reconnection.
+- **WebSocket Client** — Full async/await WebSocket with automatic reconnection and state management.
+- **Download Manager** — Resumable downloads with progress tracking and pause/resume support.
+- **Upload Manager** — Upload tasks with progress, including background upload support.
+- **Response Caching** — Memory and disk caching with TTL, cache-first or network-first policies.
+- **Network Monitoring** — Real-time connectivity status with async streams.
+- **Request Metrics** — Detailed timing, size, and performance statistics for all requests.
 - **Multipart Upload** — Stream large files with multipart/form-data support.
+- **URL Encoded Forms** — Full support for form-urlencoded bodies with encoding options.
 - **Fluent Request Builder** — Chain `.path()`, `.method()`, `.header()`, `.query()` calls for readable request construction.
-- **Mock Client** — Drop-in mock for unit testing without hitting the network.
+- **Response Validation** — Composable validators for status codes, content types, JSON schemas.
+- **Flexible Decoding** — JSON, PropertyList, automatic content-type based decoding.
+- **Mock Client** — Drop-in mock with stub stores, URL protocol mocking, and request verification.
+- **Compression** — Automatic gzip/deflate compression and decompression.
 - **Sendable Throughout** — Thread-safe by design, no data races.
 - **Zero Dependencies** — Built entirely on Foundation and URLSession.
 
@@ -211,6 +220,98 @@ let client = NetworkClient(
 )
 ```
 
+### Network Monitoring
+
+```swift
+let monitor = NetworkMonitor()
+await monitor.start()
+
+// Check connectivity
+if monitor.isConnected {
+    print("Connected via \(monitor.currentStatus.connectionType)")
+}
+
+// React to changes
+for await status in monitor.statusStream {
+    print("Network: \(status.isConnected ? "Online" : "Offline")")
+}
+```
+
+### Download with Progress
+
+```swift
+let task = DownloadTask(
+    url: URL(string: "https://example.com/large-file.zip")!,
+    destination: downloadsDirectory.appendingPathComponent("file.zip")
+)
+
+// Track progress
+for await progress in task.progressStream {
+    print("\(progress.percentComplete)% - \(progress.formattedSpeed)")
+}
+
+let fileURL = try await task.result
+```
+
+### Resumable Downloads
+
+```swift
+// Pause and get resume data
+let resumeData = await task.pause()
+try resumeData?.save(to: cacheDirectory)
+
+// Later, resume the download
+let restored = try ResumeData.load(from: cacheDirectory, id: downloadId)
+let resumedTask = DownloadTask(resumeData: restored, destination: destination)
+let file = try await resumedTask.resume()
+```
+
+### Upload with Progress
+
+```swift
+let task = UploadTask(
+    url: URL(string: "https://api.example.com/upload")!,
+    data: fileData,
+    contentType: "application/octet-stream"
+)
+
+for await progress in task.progressStream {
+    print("Uploaded: \(progress.percentComplete)%")
+}
+
+let response = try await task.result
+```
+
+### Response Caching
+
+```swift
+let cache = CacheInterceptor(
+    storage: MemoryCacheStorage(maxEntries: 100),
+    policy: .cacheFirst,
+    defaultTTL: 300 // 5 minutes
+)
+
+let client = NetworkClient(
+    baseURL: "https://api.example.com",
+    interceptors: [cache]
+)
+```
+
+### Request Metrics
+
+```swift
+let metrics = MetricsInterceptor()
+let client = NetworkClient(
+    baseURL: "https://api.example.com",
+    interceptors: [metrics]
+)
+
+// After making requests
+let stats = metrics.statistics()
+print("Average response time: \(stats.averageResponseTime)ms")
+print("Success rate: \(stats.successRate)%")
+```
+
 ### Mock Client for Testing
 
 ```swift
@@ -301,28 +402,59 @@ do {
 ```
 SwiftNetwork/
 ├── Core/
-│   ├── NetworkClient.swift        # Main client with request/upload/download
-│   ├── Endpoint.swift             # Request endpoint descriptor
-│   ├── NetworkError.swift         # Typed error cases
-│   └── HTTPMethod.swift           # HTTP verb enum
+│   ├── NetworkClient.swift         # Main client with request/upload/download
+│   ├── NetworkConfiguration.swift  # Session and request configuration
+│   ├── NetworkSession.swift        # Managed URLSession wrapper
+│   ├── Endpoint.swift              # Request endpoint descriptor
+│   ├── NetworkError.swift          # Typed error cases
+│   └── HTTPMethod.swift            # HTTP verb enum
 ├── Request/
-│   ├── RequestBuilder.swift       # Fluent endpoint builder
-│   └── MultipartFormData.swift    # Multipart form construction
+│   ├── RequestBuilder.swift        # Fluent endpoint builder
+│   ├── MultipartFormData.swift     # Multipart form construction
+│   ├── URLEncodedForm.swift        # Form URL encoding
+│   └── RequestModifier.swift       # Request transformation protocol
 ├── Response/
-│   └── NetworkResponse.swift      # Response wrapper
+│   ├── NetworkResponse.swift       # Response wrapper
+│   ├── ResponseValidator.swift     # Response validation protocols
+│   └── ResponseDecoder.swift       # Flexible response decoding
 ├── Interceptor/
-│   ├── InterceptorProtocol.swift  # Interceptor contract
-│   ├── AuthInterceptor.swift      # Token injection + refresh
-│   ├── LoggingInterceptor.swift   # Request/response logging
-│   └── RetryInterceptor.swift     # Retry with backoff
+│   ├── InterceptorProtocol.swift   # Interceptor contract
+│   ├── InterceptorChain.swift      # Chain management
+│   ├── AuthInterceptor.swift       # Token injection + refresh
+│   ├── LoggingInterceptor.swift    # Request/response logging
+│   ├── RetryInterceptor.swift      # Retry with backoff
+│   ├── CacheInterceptor.swift      # Response caching
+│   ├── MetricsInterceptor.swift    # Performance metrics
+│   └── CompressionInterceptor.swift # Gzip compression
 ├── Mock/
-│   └── MockNetworkClient.swift    # Test double
+│   ├── MockNetworkClient.swift     # Test double
+│   ├── MockResponse.swift          # Configurable mock responses
+│   ├── MockURLProtocol.swift       # URLProtocol-based mocking
+│   └── StubResponseStore.swift     # Stub management for tests
 ├── WebSocket/
-│   └── WebSocketClient.swift      # Async WebSocket
+│   ├── WebSocketClient.swift       # Async WebSocket client
+│   ├── WebSocketMessage.swift      # Message types and utilities
+│   ├── WebSocketState.swift        # Connection state machine
+│   └── WebSocketReconnection.swift # Auto-reconnection strategies
 ├── Security/
-│   └── CertificatePinning.swift   # SSL pinning
+│   ├── CertificatePinning.swift    # Certificate pinning
+│   ├── PublicKeyPinning.swift      # Public key pinning
+│   └── TrustEvaluator.swift        # Flexible trust evaluation
+├── Download/
+│   ├── DownloadTask.swift          # Resumable download tasks
+│   ├── DownloadProgress.swift      # Progress tracking
+│   └── ResumeData.swift            # Resume data persistence
+├── Upload/
+│   ├── UploadTask.swift            # Upload tasks with progress
+│   └── BackgroundUpload.swift      # Background upload manager
+├── Monitoring/
+│   ├── NetworkMonitor.swift        # Connectivity monitoring
+│   ├── RequestMetrics.swift        # Detailed timing metrics
+│   └── NetworkLogger.swift         # Configurable logging
 └── Extensions/
-    └── URLRequest+Extensions.swift
+    ├── URLRequest+Extensions.swift
+    ├── HTTPURLResponse+Extensions.swift
+    └── Data+Network.swift
 ```
 
 ---
