@@ -1,43 +1,86 @@
-name: 🐛 Bug Report
-description: Report a bug to help us improve
+name: Bug Report
+description: File a bug report to help us improve
+title: "[Bug]: "
 labels: ["bug", "triage"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
   - type: textarea
     id: description
     attributes:
-      label: Describe the bug
-      description: A clear description of what the bug is.
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Tell us what happened
     validations:
       required: true
-      
+
   - type: textarea
     id: reproduction
     attributes:
-      label: Steps to reproduce
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
       placeholder: |
-        1. Go to '...'
-        2. Click on '...'
+        1. Configure network client with...
+        2. Make request to...
         3. See error
     validations:
       required: true
-      
+
   - type: textarea
     id: expected
     attributes:
-      label: Expected behavior
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
     validations:
       required: true
-      
-  - type: input
-    id: ios-version
+
+  - type: textarea
+    id: code
     attributes:
-      label: iOS Version
-      placeholder: "17.0"
-    validations:
-      required: true
-      
-  - type: input
+      label: Code Sample
+      description: If applicable, add a minimal code sample to reproduce the issue
+      render: swift
+
+  - type: dropdown
     id: swift-version
     attributes:
       label: Swift Version
-      placeholder: "5.9"
+      options:
+        - "5.9"
+        - "5.10"
+        - "6.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      multiple: true
+      options:
+        - iOS
+        - macOS
+        - tvOS
+        - watchOS
+        - visionOS
+    validations:
+      required: true
+
+  - type: input
+    id: os-version
+    attributes:
+      label: OS Version
+      placeholder: "e.g., iOS 17.0, macOS 14.0"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues to ensure this bug hasn't been reported
+          required: true
