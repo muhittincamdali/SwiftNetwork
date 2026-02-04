@@ -1,187 +1,141 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/muhittincamdali/SwiftNetwork/main/Assets/logo.png" alt="SwiftNetwork Logo" width="200">
+  <img src="Assets/logo.png" alt="SwiftNetwork" width="200"/>
 </p>
 
 <h1 align="center">SwiftNetwork</h1>
 
 <p align="center">
-  <strong>🌐 Modern, type-safe networking layer for Swift</strong>
+  <strong>🌐 Next-gen async/await networking library for iOS - zero dependencies</strong>
 </p>
 
 <p align="center">
-  <a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-5.9+-F05138?style=flat-square&logo=swift&logoColor=white" alt="Swift 5.9+"></a>
-  <a href="https://developer.apple.com/ios/"><img src="https://img.shields.io/badge/Platforms-iOS%20%7C%20macOS%20%7C%20tvOS%20%7C%20watchOS%20%7C%20visionOS-blue?style=flat-square" alt="Platforms"></a>
-  <a href="https://swift.org/package-manager/"><img src="https://img.shields.io/badge/SPM-Compatible-brightgreen?style=flat-square&logo=swift" alt="SPM Compatible"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License: MIT"></a>
-  <br>
-  <a href="https://github.com/muhittincamdali/SwiftNetwork/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/muhittincamdali/SwiftNetwork/ci.yml?branch=main&style=flat-square&logo=github&label=CI" alt="CI Status"></a>
-  <a href="https://github.com/muhittincamdali/SwiftNetwork/stargazers"><img src="https://img.shields.io/github/stars/muhittincamdali/SwiftNetwork?style=flat-square&logo=github" alt="Stars"></a>
-  <a href="https://github.com/muhittincamdali/SwiftNetwork/graphs/contributors"><img src="https://img.shields.io/github/contributors/muhittincamdali/SwiftNetwork?style=flat-square" alt="Contributors"></a>
-  <a href="https://github.com/muhittincamdali/SwiftNetwork/issues"><img src="https://img.shields.io/github/issues/muhittincamdali/SwiftNetwork?style=flat-square" alt="Issues"></a>
-</p>
-
-<p align="center">
-  <a href="#features">Features</a> •
-  <a href="#installation">Installation</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#documentation">Documentation</a> •
-  <a href="#contributing">Contributing</a>
+  <a href="https://github.com/muhittincamdali/SwiftNetwork/actions/workflows/ci.yml">
+    <img src="https://github.com/muhittincamdali/SwiftNetwork/actions/workflows/ci.yml/badge.svg" alt="CI"/>
+  </a>
+  <img src="https://img.shields.io/badge/Swift-6.0-orange.svg" alt="Swift 6.0"/>
+  <img src="https://img.shields.io/badge/iOS-17.0+-blue.svg" alt="iOS 17.0+"/>
 </p>
 
 ---
 
-## ✨ Features
+## Why SwiftNetwork?
 
-- **🚀 Async/Await Native** — Built from the ground up with Swift Concurrency
-- **🔒 Type-Safe** — Leverage Swift's type system for compile-time safety
-- **🔄 Interceptors** — Request and response interceptors for authentication, logging, and more
-- **📦 Response Caching** — Flexible caching with configurable policies
-- **🔐 SSL Pinning** — Built-in certificate pinning for enhanced security
-- **🔁 Automatic Retry** — Exponential backoff retry mechanism
-- **📊 Progress Tracking** — Monitor upload and download progress
-- **📝 Comprehensive Logging** — Debug your network calls with detailed logs
-- **🧩 Protocol-Oriented** — Easy to extend and customize
-
-## 📋 Requirements
-
-| Platform | Minimum Version |
-|----------|----------------|
-| iOS      | 15.0+          |
-| macOS    | 12.0+          |
-| tvOS     | 15.0+          |
-| watchOS  | 8.0+           |
-| visionOS | 1.0+           |
-| Swift    | 5.9+           |
-| Xcode    | 15.0+          |
-
-## 📦 Installation
-
-### Swift Package Manager
-
-Add SwiftNetwork to your `Package.swift`:
+Modern iOS has `async/await` and `URLSession`, but you still need boilerplate for error handling, retries, authentication, and response parsing. **SwiftNetwork** provides a clean, powerful API with zero dependencies.
 
 ```swift
-dependencies: [
-    .package(url: "https://github.com/muhittincamdali/SwiftNetwork.git", from: "1.0.0")
-]
+// Define your API
+let api = API(baseURL: "https://api.example.com")
+
+// Make requests
+let user: User = try await api.get("/users/\(id)")
+let created: User = try await api.post("/users", body: newUser)
 ```
 
-Or add it through Xcode:
-1. **File** → **Add Package Dependencies...**
-2. Enter: `https://github.com/muhittincamdali/SwiftNetwork.git`
-3. Select version and click **Add Package**
+## Features
 
-### CocoaPods
+| Feature | Description |
+|---------|-------------|
+| ⚡ **Async/Await** | Native Swift concurrency |
+| 🔄 **Auto Retry** | Configurable retry logic |
+| 🔐 **Auth** | Token refresh, OAuth |
+| 📦 **Codable** | Automatic JSON encoding/decoding |
+| 🎯 **Type-Safe** | Generic request/response |
+| 📊 **Interceptors** | Request/response middleware |
+| 🧪 **Mockable** | Protocol-based for testing |
 
-```ruby
-pod 'SwiftNetwork', '~> 1.0'
-```
-
-### Manual Installation
-
-1. Download the latest release
-2. Drag `Sources/SwiftNetwork` into your Xcode project
-3. Ensure "Copy items if needed" is checked
-
-## 🚀 Quick Start
-
-### Basic Request
+## Quick Start
 
 ```swift
 import SwiftNetwork
 
-// Define your API endpoint
-enum UserAPI: Endpoint {
-    case getUser(id: Int)
-    case createUser(name: String, email: String)
-    
-    var path: String {
-        switch self {
-        case .getUser(let id): return "/users/\(id)"
-        case .createUser: return "/users"
-        }
-    }
-    
-    var method: HTTPMethod {
-        switch self {
-        case .getUser: return .get
-        case .createUser: return .post
-        }
-    }
-    
-    var body: Encodable? {
-        switch self {
-        case .createUser(let name, let email):
-            return ["name": name, "email": email]
-        default:
-            return nil
-        }
-    }
+// Configure
+let api = API(baseURL: "https://api.example.com") {
+    $0.headers = ["Authorization": "Bearer \(token)"]
+    $0.timeout = 30
+    $0.retryPolicy = .exponential(maxAttempts: 3)
 }
 
-// Create network client
-let client = NetworkClient(baseURL: URL(string: "https://api.example.com")!)
+// GET
+let users: [User] = try await api.get("/users")
 
-// Make a request
-let user: User = try await client.request(UserAPI.getUser(id: 1))
-print("Fetched user: \(user.name)")
+// POST
+let user: User = try await api.post("/users", body: CreateUserRequest(name: "John"))
+
+// PUT
+let updated: User = try await api.put("/users/\(id)", body: updateRequest)
+
+// DELETE
+try await api.delete("/users/\(id)")
 ```
 
-### With Interceptors
+## Request Building
 
 ```swift
-// Add authentication
-let authInterceptor = AuthInterceptor(token: "your-token")
-
-let client = NetworkClient(baseURL: baseURL)
-    .addInterceptor(authInterceptor)
-    .addInterceptor(LoggingInterceptor())
+let response: Response = try await api.request {
+    $0.method = .post
+    $0.path = "/users"
+    $0.body = user
+    $0.headers["X-Custom"] = "value"
+    $0.queryItems = ["include": "posts"]
+}
 ```
 
-### Response Caching
+## Interceptors
 
 ```swift
-let client = NetworkClient(baseURL: baseURL)
-    .withCache(policy: .returnCacheDataElseLoad, duration: 300)
+api.addInterceptor { request, next in
+    // Before request
+    var modified = request
+    modified.headers["X-Request-ID"] = UUID().uuidString
+    
+    // Execute
+    let response = try await next(modified)
+    
+    // After response
+    print("Request took: \(response.duration)s")
+    
+    return response
+}
 ```
 
-### Retry Configuration
+## Authentication
 
 ```swift
-let client = NetworkClient(baseURL: baseURL)
-    .withRetry(maxAttempts: 3, delay: 1.0, multiplier: 2.0)
+api.authHandler = TokenRefreshHandler { refreshToken in
+    let response: AuthResponse = try await authApi.refresh(token: refreshToken)
+    return response.accessToken
+}
 ```
 
-## 📖 Documentation
+## Error Handling
 
-For full documentation, see the [Documentation](Documentation/) folder.
+```swift
+do {
+    let user = try await api.get("/users/123")
+} catch NetworkError.httpError(let status, let body) {
+    // Server returned error status
+} catch NetworkError.decodingError(let error) {
+    // JSON parsing failed
+} catch NetworkError.noConnection {
+    // Network unavailable
+}
+```
 
-## 🛡️ Security
+## Testing
 
-See [SECURITY.md](SECURITY.md) for security guidelines.
+```swift
+let mockAPI = MockAPI()
+mockAPI.stub("/users") { _ in
+    return [User(id: "1", name: "Test")]
+}
 
-## 🤝 Contributing
+// Use mockAPI in tests
+```
 
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a PR.
+## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
-
-**Muhittin Camdali**
-
-- GitHub: [@muhittincamdali](https://github.com/muhittincamdali)
-
----
-
-<p align="center">
-  <sub>Built with ❤️ for the Swift community</sub>
-</p>
+MIT License
