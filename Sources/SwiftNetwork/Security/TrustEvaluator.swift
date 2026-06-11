@@ -338,7 +338,7 @@ extension TrustEvaluationError: LocalizedError {
 // MARK: - Host-based Evaluator Manager
 
 /// Manages trust evaluators for different hosts.
-public final class TrustEvaluatorManager: @unchecked Sendable {
+public final class TrustEvaluatorManager: Sendable {
 
     /// Evaluators by host pattern.
     private var evaluators: [String: any TrustEvaluator] = [:]

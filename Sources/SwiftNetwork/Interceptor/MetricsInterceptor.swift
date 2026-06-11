@@ -16,7 +16,7 @@ import Foundation
 /// let stats = await metrics.statistics()
 /// print("Average response time: \(stats.averageResponseTime)ms")
 /// ```
-public final class MetricsInterceptor: NetworkInterceptor, @unchecked Sendable {
+public final class MetricsInterceptor: NetworkInterceptor, Sendable {
 
     // MARK: - Types
 

@@ -15,9 +15,10 @@ import Network
 ///     print("Type: \(status.connectionType)")
 /// }
 /// ```
-public final class NetworkMonitor: @unchecked Sendable {
+public final class NetworkMonitor: Sendable {
 
     // MARK: - Types
+    // ... (rest of types)
 
     /// Network connection type.
     public enum ConnectionType: String, Sendable {
@@ -89,22 +90,21 @@ public final class NetworkMonitor: @unchecked Sendable {
     private let queue: DispatchQueue
 
     /// Current network status.
-    public private(set) var currentStatus: NetworkStatus = .disconnected
+    private let _currentStatus = Locked(NetworkStatus.disconnected)
+    public var currentStatus: NetworkStatus { _currentStatus.withLock { $0 } }
 
     /// Status stream continuation.
-    private var statusContinuation: AsyncStream<NetworkStatus>.Continuation?
+    private let statusContinuation = Locked<AsyncStream<NetworkStatus>.Continuation?>(nil)
 
     /// Event stream continuation.
-    private var eventContinuation: AsyncStream<NetworkEvent>.Continuation?
+    private let eventContinuation = Locked<AsyncStream<NetworkEvent>.Continuation?>(nil)
 
     /// Whether monitoring is active.
-    public private(set) var isMonitoring: Bool = false
+    private let _isMonitoring = Locked(false)
+    public var isMonitoring: Bool { _isMonitoring.withLock { $0 } }
 
     /// Required interface type (nil for any).
     public let requiredInterfaceType: NWInterface.InterfaceType?
-
-    /// Lock for thread safety.
-    private let lock = NSLock()
 
     // MARK: - Initialization
 
@@ -131,9 +131,11 @@ public final class NetworkMonitor: @unchecked Sendable {
 
     /// Starts network monitoring.
     public func start() async {
-        guard !isMonitoring else { return }
-
-        isMonitoring = true
+        guard _isMonitoring.withLock({ monitoring in
+            if monitoring { return true }
+            monitoring = true
+            return false
+        }) == false else { return }
 
         pathMonitor.pathUpdateHandler = { [weak self] path in
             self?.handlePathUpdate(path)
@@ -144,13 +146,16 @@ public final class NetworkMonitor: @unchecked Sendable {
 
     /// Stops network monitoring.
     public func stop() {
-        guard isMonitoring else { return }
+        guard _isMonitoring.withLock({ monitoring in
+            if !monitoring { return false }
+            monitoring = false
+            return true
+        }) else { return }
 
-        isMonitoring = false
         pathMonitor.cancel()
 
-        statusContinuation?.finish()
-        eventContinuation?.finish()
+        statusContinuation.withLock { $0?.finish() }
+        eventContinuation.withLock { $0?.finish() }
     }
 
     // MARK: - Status Stream
@@ -158,13 +163,13 @@ public final class NetworkMonitor: @unchecked Sendable {
     /// An async stream of network status updates.
     public var statusStream: AsyncStream<NetworkStatus> {
         AsyncStream { continuation in
-            self.statusContinuation = continuation
+            self.statusContinuation.withLock { $0 = continuation }
 
             // Emit current status immediately
             continuation.yield(currentStatus)
 
             continuation.onTermination = { [weak self] _ in
-                self?.statusContinuation = nil
+                self?.statusContinuation.withLock { $0 = nil }
             }
         }
     }
@@ -172,10 +177,10 @@ public final class NetworkMonitor: @unchecked Sendable {
     /// An async stream of network events.
     public var eventStream: AsyncStream<NetworkEvent> {
         AsyncStream { continuation in
-            self.eventContinuation = continuation
+            self.eventContinuation.withLock { $0 = continuation }
 
             continuation.onTermination = { [weak self] _ in
-                self?.eventContinuation = nil
+                self?.eventContinuation.withLock { $0 = nil }
             }
         }
     }
@@ -198,14 +203,14 @@ public final class NetworkMonitor: @unchecked Sendable {
             timestamp: Date()
         )
 
-        let previousStatus = lock.withLock {
-            let old = currentStatus
-            currentStatus = newStatus
+        let previousStatus = _currentStatus.withLock {
+            let old = $0
+            $0 = newStatus
             return old
         }
 
         // Emit status update
-        statusContinuation?.yield(newStatus)
+        statusContinuation.withLock { $0?.yield(newStatus) }
 
         // Emit events
         emitEvents(previous: previousStatus, current: newStatus)
@@ -230,22 +235,22 @@ public final class NetworkMonitor: @unchecked Sendable {
     private func emitEvents(previous: NetworkStatus, current: NetworkStatus) {
         // Connection state changes
         if !previous.isConnected && current.isConnected {
-            eventContinuation?.yield(.becameConnected(current))
+            eventContinuation.withLock { $0?.yield(.becameConnected(current)) }
         } else if previous.isConnected && !current.isConnected {
-            eventContinuation?.yield(.becameDisconnected)
+            eventContinuation.withLock { $0?.yield(.becameDisconnected) }
         }
 
         // Connection type changes
         if previous.connectionType != current.connectionType && current.isConnected {
-            eventContinuation?.yield(.connectionTypeChanged(
+            eventContinuation.withLock { $0?.yield(.connectionTypeChanged(
                 from: previous.connectionType,
                 to: current.connectionType
-            ))
+            )) }
         }
 
         // Constraint changes
         if previous.isConstrained != current.isConstrained {
-            eventContinuation?.yield(.constraintChanged(isConstrained: current.isConstrained))
+            eventContinuation.withLock { $0?.yield(.constraintChanged(isConstrained: current.isConstrained)) }
         }
     }
 
@@ -253,27 +258,27 @@ public final class NetworkMonitor: @unchecked Sendable {
 
     /// Whether the network is currently connected.
     public var isConnected: Bool {
-        lock.withLock { currentStatus.isConnected }
+        _currentStatus.withLock { $0.isConnected }
     }
 
     /// Whether the current connection is WiFi.
     public var isOnWiFi: Bool {
-        lock.withLock { currentStatus.connectionType == .wifi }
+        _currentStatus.withLock { $0.connectionType == .wifi }
     }
 
     /// Whether the current connection is cellular.
     public var isOnCellular: Bool {
-        lock.withLock { currentStatus.connectionType == .cellular }
+        _currentStatus.withLock { $0.connectionType == .cellular }
     }
 
     /// Whether the current connection is expensive.
     public var isExpensive: Bool {
-        lock.withLock { currentStatus.isExpensive }
+        _currentStatus.withLock { $0.isExpensive }
     }
 
     /// Whether the current connection is constrained.
     public var isConstrained: Bool {
-        lock.withLock { currentStatus.isConstrained }
+        _currentStatus.withLock { $0.isConstrained }
     }
 
     /// Waits for the network to become available.

@@ -20,7 +20,7 @@ import Foundation
 /// config.protocolClasses = [MockURLProtocol.self]
 /// let session = URLSession(configuration: config)
 /// ```
-public final class MockURLProtocol: URLProtocol, @unchecked Sendable {
+public final class MockURLProtocol: URLProtocol, Sendable {
 
     // MARK: - Types
 
@@ -297,7 +297,7 @@ extension URLSession {
 // MARK: - Mock Session Builder
 
 /// Builder for creating mock URLSession configurations.
-public final class MockSessionBuilder: @unchecked Sendable {
+public final class MockSessionBuilder: Sendable {
 
     private var stubs: [(matcher: (URLRequest) -> Bool, response: MockResponse)] = []
     private var defaultResponse: MockResponse?

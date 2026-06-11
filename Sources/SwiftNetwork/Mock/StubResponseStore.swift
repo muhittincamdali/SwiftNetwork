@@ -13,7 +13,7 @@ import Foundation
 ///     return .json(["success": true])
 /// }
 /// ```
-public final class StubResponseStore: @unchecked Sendable {
+public final class StubResponseStore: Sendable {
 
     // MARK: - Types
 
@@ -289,7 +289,7 @@ public final class StubResponseStore: @unchecked Sendable {
 // MARK: - Stub Builder
 
 /// Builder for creating complex stub configurations.
-public final class StubBuilder: @unchecked Sendable {
+public final class StubBuilder: Sendable {
 
     private let store: StubResponseStore
     private let method: StubResponseStore.Method
@@ -432,4 +432,4 @@ private extension StubResponseStore {
     }
 }
 
-extension StubResponseStore.StubEntry: @unchecked Sendable {}
+extension StubResponseStore.StubEntry: Sendable {}

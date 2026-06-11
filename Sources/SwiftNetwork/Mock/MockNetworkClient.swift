@@ -15,7 +15,7 @@ import Foundation
 ///     Endpoint(path: "/users", method: .get)
 /// )
 /// ```
-public final class MockNetworkClient: @unchecked Sendable {
+public final class MockNetworkClient: Sendable {
 
     // MARK: - Types
 

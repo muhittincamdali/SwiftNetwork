@@ -19,7 +19,7 @@ import CommonCrypto
 ///     securityEvaluator: pinning
 /// )
 /// ```
-public final class PublicKeyPinning: NSObject, URLSessionDelegate, @unchecked Sendable {
+public final class PublicKeyPinning: NSObject, URLSessionDelegate, Sendable {
 
     // MARK: - Types
 

@@ -17,7 +17,7 @@ import Foundation
 ///     }
 /// }
 /// ```
-public final class WebSocketClient: @unchecked Sendable {
+public final class WebSocketClient: Sendable {
 
     // MARK: - Types
 

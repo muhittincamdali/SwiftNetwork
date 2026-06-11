@@ -19,7 +19,7 @@ import os.log
 /// logger.log(request: request)
 /// logger.log(response: response, duration: 0.5)
 /// ```
-public final class NetworkLogger: @unchecked Sendable {
+public final class NetworkLogger: Sendable {
 
     // MARK: - Types
 

@@ -14,7 +14,7 @@ import Foundation
 ///
 /// let fileURL = try await task.result
 /// ```
-public final class DownloadTask: NSObject, @unchecked Sendable {
+public final class DownloadTask: NSObject, Sendable {
 
     // MARK: - Types
 
