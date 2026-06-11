@@ -15,7 +15,7 @@ import CommonCrypto
 ///     certificatePinning: pinning
 /// )
 /// ```
-public final class CertificatePinning: NSObject, URLSessionDelegate, @unchecked Sendable {
+public final class CertificatePinning: NSObject, URLSessionDelegate, Sendable {
 
     // MARK: - Properties
 

@@ -12,7 +12,7 @@ import os.log
 ///     interceptors: [LoggingInterceptor()]
 /// )
 /// ```
-public final class LoggingInterceptor: NetworkInterceptor, @unchecked Sendable {
+public final class LoggingInterceptor: NetworkInterceptor, Sendable {
 
     /// The log level for output.
     public enum LogLevel: Sendable {

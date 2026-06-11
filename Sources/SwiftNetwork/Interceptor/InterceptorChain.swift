@@ -14,7 +14,7 @@ import Foundation
 ///
 /// let client = NetworkClient(baseURL: url, chain: chain)
 /// ```
-public final class InterceptorChain: @unchecked Sendable {
+public final class InterceptorChain: Sendable {
 
     // MARK: - Types
 

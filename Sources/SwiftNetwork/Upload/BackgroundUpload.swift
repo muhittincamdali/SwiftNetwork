@@ -24,7 +24,7 @@ import Foundation
 ///     )
 /// }
 /// ```
-public final class BackgroundUploadManager: NSObject, @unchecked Sendable {
+public final class BackgroundUploadManager: NSObject, Sendable {
 
     // MARK: - Types
 

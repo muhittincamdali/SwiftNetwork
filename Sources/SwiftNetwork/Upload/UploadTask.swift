@@ -18,7 +18,7 @@ import Foundation
 ///
 /// let response = try await task.result
 /// ```
-public final class UploadTask: NSObject, @unchecked Sendable {
+public final class UploadTask: NSObject, Sendable {
 
     // MARK: - Types
 

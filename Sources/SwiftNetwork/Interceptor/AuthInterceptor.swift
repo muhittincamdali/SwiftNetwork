@@ -15,7 +15,7 @@ import Foundation
 ///     }
 /// )
 /// ```
-public final class AuthInterceptor: NetworkInterceptor, @unchecked Sendable {
+public final class AuthInterceptor: NetworkInterceptor, Sendable {
 
     // MARK: - Properties
 
