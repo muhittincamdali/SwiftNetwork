@@ -16,7 +16,7 @@ import Foundation
 ///     interceptors: [cacheInterceptor]
 /// )
 /// ```
-public final class CacheInterceptor: NetworkInterceptor, @unchecked Sendable {
+public final class CacheInterceptor: NetworkInterceptor, Sendable {
 
     // MARK: - Types
 
@@ -341,7 +341,7 @@ public final class CacheInterceptor: NetworkInterceptor, @unchecked Sendable {
 // MARK: - Memory Cache Storage
 
 /// In-memory cache storage implementation.
-public final class MemoryCacheStorage: CacheInterceptor.CacheStorage, @unchecked Sendable {
+public final class MemoryCacheStorage: CacheInterceptor.CacheStorage, Sendable {
 
     private var cache: [String: CacheInterceptor.CacheEntry] = [:]
     private let lock = NSLock()
@@ -428,7 +428,7 @@ public final class MemoryCacheStorage: CacheInterceptor.CacheStorage, @unchecked
 // MARK: - Disk Cache Storage
 
 /// Disk-based cache storage implementation.
-public final class DiskCacheStorage: CacheInterceptor.CacheStorage, @unchecked Sendable {
+public final class DiskCacheStorage: CacheInterceptor.CacheStorage, Sendable {
 
     private let directory: URL
     private let fileManager: FileManager

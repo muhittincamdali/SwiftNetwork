@@ -12,7 +12,7 @@ import Foundation
 ///     interceptors: [retry]
 /// )
 /// ```
-public final class RetryInterceptor: NetworkInterceptor, @unchecked Sendable {
+public final class RetryInterceptor: NetworkInterceptor, Sendable {
 
     // MARK: - Properties
 

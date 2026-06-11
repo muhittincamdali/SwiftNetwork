@@ -9,7 +9,7 @@ import Foundation
 /// let session = NetworkSession(configuration: .default)
 /// let response = try await session.data(for: request)
 /// ```
-public final class NetworkSession: NSObject, @unchecked Sendable {
+public final class NetworkSession: NSObject, Sendable {
 
     // MARK: - Types
 

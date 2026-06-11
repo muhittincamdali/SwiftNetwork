@@ -15,7 +15,7 @@ import Foundation
 ///     Endpoint(path: "/users", method: .get)
 /// )
 /// ```
-public final class NetworkClient: @unchecked Sendable {
+public final class NetworkClient: Sendable {
 
     // MARK: - Properties
 

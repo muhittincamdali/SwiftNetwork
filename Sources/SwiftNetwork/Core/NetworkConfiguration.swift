@@ -277,7 +277,7 @@ public struct NetworkConfiguration: Sendable {
 extension NetworkConfiguration {
 
     /// A builder for creating customized network configurations.
-    public final class Builder: @unchecked Sendable {
+    public final class Builder: Sendable {
         private var defaultTimeout: TimeInterval = 30
         private var resourceTimeout: TimeInterval = 300
         private var connectionTimeout: TimeInterval = 15

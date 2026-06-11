@@ -24,7 +24,7 @@ public protocol ResponseDecoder: Sendable {
 // MARK: - JSON Response Decoder
 
 /// Decodes JSON responses using `JSONDecoder`.
-public final class JSONResponseDecoder: ResponseDecoder, @unchecked Sendable {
+public final class JSONResponseDecoder: ResponseDecoder, Sendable {
 
     /// The underlying JSON decoder.
     public let jsonDecoder: JSONDecoder
@@ -89,7 +89,7 @@ public final class JSONResponseDecoder: ResponseDecoder, @unchecked Sendable {
 // MARK: - Property List Response Decoder
 
 /// Decodes property list responses using `PropertyListDecoder`.
-public final class PropertyListResponseDecoder: ResponseDecoder, @unchecked Sendable {
+public final class PropertyListResponseDecoder: ResponseDecoder, Sendable {
 
     /// The underlying property list decoder.
     public let plistDecoder: PropertyListDecoder
@@ -212,7 +212,7 @@ public struct EmptyResponse: Decodable, Sendable {
 // MARK: - Automatic Response Decoder
 
 /// Automatically selects a decoder based on the response content type.
-public final class AutomaticResponseDecoder: ResponseDecoder, @unchecked Sendable {
+public final class AutomaticResponseDecoder: ResponseDecoder, Sendable {
 
     /// The JSON decoder to use for JSON content.
     public let jsonDecoder: JSONDecoder
