@@ -15,6 +15,9 @@
 
 <h1 align="center">SwiftNetwork</h1>
 
+> **Global Search Tags:** iOS networking library, Swift 6 networking, Alamofire alternative, zero dependency networking swift, high performance HTTP client, actor-isolated networking.
+
+
 <p align="center">
   <strong>🌐 Next-gen async/await networking library for iOS - zero dependencies</strong>
 </p>
