@@ -39,6 +39,8 @@ Modern iOS has `async/await` and `URLSession`, but you still need boilerplate fo
 ### ⚔️ The Brutal Truth: SwiftNetwork vs. Alamofire
 Stop carrying 10 years of legacy baggage. SwiftNetwork is mathematically proven to be faster, lighter, and safer than the "industry standard". **Zero Bloat. Pure Swift 6. No Compromises.**
 
+👉 **[Read the Alamofire Exodus Migration Guide](MIGRATION_GUIDE.md)**
+
 ```mermaid
 %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#007AFF', 'edgeLabelBackground':'#1e1e1e', 'tertiaryColor': '#FF3B30'}}}%%
 xychart-beta
