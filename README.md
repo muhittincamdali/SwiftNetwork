@@ -15,6 +15,9 @@
 
 <h1 align="center">SwiftNetwork</h1>
 
+## 🚀 Killer Feature: WebSocket Multiplexer
+Handle thousands of real-time events. The `WebSocketMultiplexer` actor routes a single WebSocket connection to multiple `AsyncStream` listeners, saving battery and network overhead.
+
 > **Global Search Tags:** iOS networking library, Swift 6 networking, Alamofire alternative, zero dependency networking swift, high performance HTTP client, actor-isolated networking.
 
 
